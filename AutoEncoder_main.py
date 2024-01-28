@@ -12,6 +12,10 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from PIL import Image
 
+# https://github.com/zalandoresearch/fashion-mnist のサンプルデータ読込み用
+from fashion_mnist.utils import mnist_reader
+import numpy as np
+
 #================================================================================
 # ネットワーク定義
 #================================================================================
@@ -202,7 +206,20 @@ class FashionMnistDataset:
         'Ankle boot')
 
     def __init__(self):
-        (train_images, train_labels), (test_images, test_labels) = datasets.fashion_mnist.load_data()
+        # (train_images, train_labels), (test_images, test_labels) = datasets.fashion_mnist.load_data()
+
+        # https://github.com/zalandoresearch/fashion-mnist のサンプルデータ読込み
+        train_images, train_labels = mnist_reader.load_mnist('fashion_mnist/data/fashion', kind='train')
+        test_images,  test_labels  = mnist_reader.load_mnist('fashion_mnist/data/fashion', kind='t10k')
+
+        train_images = train_images.reshape(60000, 28, 28)  # (60000, 784) => (60000, 28, 28) 
+        test_images  = test_images.reshape (10000, 28, 28)  # (10000, 784) => (10000, 28, 28) 
+
+        # print('train_images dtype={0}, shape={1}'.format(train_images.dtype, train_images.shape))
+        # print('train_labels dtype={0}, shape={1}'.format(train_labels.dtype, train_labels.shape))
+        # print('test_images dtype={0}, shape={1}'.format(test_images.dtype, test_images.shape))
+        # print('test_labels dtype={0}, shape={1}'.format(test_labels.dtype, test_labels.shape))
+
         self.train_images = train_images.astype("float32") / 255.0
         self.train_labels = train_labels
         self.test_images = test_images.astype("float32") / 255.0
@@ -305,8 +322,7 @@ image = fashion_mnist_dataset.get_test_image(INDEX)
 z, y = cae.predict(image)
 
 view = ImageView()
-view.display(image)
-
-# view.display(y)
+view.display(image) # test_image
+view.display(y)     # predict結果
 
 print('finished')
